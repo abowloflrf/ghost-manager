@@ -5,16 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="//cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/axios/dist/axios.js"></script>
     <title>ghost-upload</title>
 </head>
 
 <body>
-    <h1>Files</h1>
-    <ul>
-        {{range .}}
-            <li><code>{{.Name}}</code> {{.Size}} MB <i>{{.Ext}}</i></li>
-        {{end}}
-    </ul>
+    <div id="cover-app">
+        <ghost-covers></ghost-covers>
+    </div>
+
+    <script src="assets/js/app.js"></script>
 </body>
 
 </html>

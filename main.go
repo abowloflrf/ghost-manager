@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"path"
 
 	"github.com/gorilla/mux"
@@ -18,16 +19,26 @@ type File struct {
 	Ext  string
 }
 
+var coverPath = ""
+
+func init() {
+	if len(os.Args) < 2 {
+		log.Fatal("Where is cover path?")
+	}
+	coverPath = os.Args[1]
+}
+
 func main() {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", func(w http.ResponseWriter, res *http.Request) {
 		t, _ := template.ParseFiles("./templates/index.html")
 
-		files, _ := ioutil.ReadDir("/Users/ruofeng/Downloads")
+		files, _ := ioutil.ReadDir(coverPath)
 		fileInfos := []File{}
 		for _, file := range files {
 			if !file.IsDir() {
+				// fmt.Println(file.Name())
 				fileInfos = append(fileInfos, File{
 					file.Name(),
 					float64(file.Size()) / 1048576,
@@ -37,6 +48,8 @@ func main() {
 		}
 		t.Execute(w, fileInfos)
 	})
+
+	r.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
 
 	fmt.Println("Listen: http://127.0.0.1:8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
