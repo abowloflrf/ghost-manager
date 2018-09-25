@@ -31,7 +31,7 @@ func init() {
 func main() {
 	r := mux.NewRouter()
 
-	r.HandleFunc("/", func(w http.ResponseWriter, res *http.Request) {
+	r.HandleFunc("/upload", func(w http.ResponseWriter, res *http.Request) {
 		t, _ := template.ParseFiles("./templates/index.html")
 
 		files, _ := ioutil.ReadDir(coverPath)
@@ -49,7 +49,7 @@ func main() {
 		t.Execute(w, fileInfos)
 	})
 
-	r.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
+	r.PathPrefix("/upload/assets/").Handler(http.StripPrefix("/upload/assets/", http.FileServer(http.Dir("./assets"))))
 
 	fmt.Println("Listen: http://127.0.0.1:8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
