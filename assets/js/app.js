@@ -23,7 +23,7 @@ Vue.component("ghost-covers", {
     template: "<p>{{ message }}</p>",
 
     beforeMount: function() {
-        this.$axios.get(apiUrl + "/post", {
+        this.$axios.get(apiUrl + "/posts", {
             params: {
                 limit: 100,
                 fields: "title,slug,visibility"
