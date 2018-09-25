@@ -9,7 +9,7 @@ Vue.prototype.$axios = axios
 //inject Ghost token into axios header
 if (ghostToken) {
     Vue.prototype.$axios.defaults.headers.common["Authorization"] =
-        "Bearer" + ghostToken
+        "Bearer " + ghostToken
 } else {
     window.location.href = "/ghost"
 }
