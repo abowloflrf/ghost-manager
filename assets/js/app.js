@@ -21,6 +21,7 @@ Vue.component("ghost-covers", {
         return {
             message: "Covers",
             cover: null,
+            slug: "",
             posts: []
         }
     },
@@ -42,7 +43,7 @@ Vue.component("ghost-covers", {
                         <td>
                             <div class="file" style="margin-bottom:15px;">
                                 <label class="file-label">
-                                    <input class="file-input" type="file" accept="image/png" name="cover" @change="selectCover">
+                                    <input class="file-input" type="file" accept="image/png" name="cover" @change="selectCover($event,p.slug)">
                                     <span class="file-cta button is-small is-outlined">
                                         <span class="file-label">
                                             Change
@@ -57,8 +58,15 @@ Vue.component("ghost-covers", {
         </div>
     `,
     methods: {
-        selectCover: function(e) {
+        selectCover: function(e, s) {
             this.cover = e.target.files[0]
+            this.slug = s
+            if (this.cover != null && this.slug != "") {
+                this.uploadCover()
+            }
+        },
+        uploadCover: function() {
+            //TODO: axios upload cover
         }
     },
     beforeMount: function() {
