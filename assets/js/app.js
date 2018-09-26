@@ -22,7 +22,9 @@ Vue.component("ghost-covers", {
             message: "Covers",
             cover: null,
             slug: "",
-            posts: []
+            posts: [],
+            barValue: 0,
+            isShowBar: false
         }
     },
     template: `
@@ -55,33 +57,68 @@ Vue.component("ghost-covers", {
                     </tr>
                 </tbody>
             </table>
+            <progress class="progress is-small" :value="barValue" max="100" v-show="isShowBar"></progress>
         </div>
     `,
     methods: {
+        fetchData() {
+            //get all posts
+            var self = this
+            axios
+                .get(apiUrl + "/posts", {
+                    params: {
+                        limit: 100,
+                        fields: "title,slug,visibility"
+                    }
+                })
+                .then(function(response) {
+                    self.posts = response.data.posts
+                })
+        },
         selectCover: function(e, s) {
             this.cover = e.target.files[0]
             this.slug = s
-            if (this.cover != null && this.slug != "") {
-                this.uploadCover()
+            //check uploaded cover type
+            if (
+                this.cover.type != "image/png" ||
+                this.cover.name.substr(-4) != ".png"
+            ) {
+                this.cover = null
+                this.slug = ""
+                alert("图片仅限PNG类型，请重新选择")
+                return
             }
+            this.uploadCover()
         },
         uploadCover: function() {
-            //TODO: axios upload cover
+            this.isShowBar = true
+            var sendData = new FormData()
+            sendData.append("coverFile", this.cover)
+            sendData.append("coverSlug", this.slug)
+            var config = {
+                onUploadProgress: progressEvent => {
+                    this.barValue = Math.round(
+                        (progressEvent.loaded * 100) / progressEvent.total
+                    )
+                }
+            }
+            axios
+                .post("/upload/api/cover", sendData, config)
+                .then(response => {
+                    this.isShowBar = false
+                    this.barValue = 0
+                    if (response.data.status == "OK") alert("封面更换成功")
+                    this.fetchData()
+                })
+                .catch(function(err) {
+                    alert("上传失败：" + err.message)
+                    console.error(err)
+                    this.fetchData()
+                })
         }
     },
     beforeMount: function() {
-        //get all posts
-        var self = this
-        axios
-            .get(apiUrl + "/posts", {
-                params: {
-                    limit: 100,
-                    fields: "title,slug,visibility"
-                }
-            })
-            .then(function(response) {
-                self.posts = response.data.posts
-            })
+        this.fetchData()
     }
     //TODO: check token valid
 })
