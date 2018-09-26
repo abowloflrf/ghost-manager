@@ -13,46 +13,50 @@
 </head>
 
 <body>
-    <div id="cover-app">
-        <ghost-covers></ghost-covers>
-    </div>
-    <div id="attachment-app">
-        <h1 class="title">Attachments</h1>
-        <div class="file" style="margin-bottom:15px;">
-            <label class="file-label">
-                <input class="file-input" type="file" name="file">
-                <span class="file-cta">
-                    <span class="file-label">
-                        Choose a file to upload
-                    </span>
-                </span>
-            </label>
+    <div class="container" style="padding:20px">
+        <div id="cover-app" style="margin-top:40px">
+            <ghost-covers></ghost-covers>
         </div>
-        <progress class="progress is-small" value="0" max="100" style="max-width:200px;display: none" id="att-progress-bar"></progress>
+        <hr class="hr">
+        <div id="attachment-app">
+            <h1 class="title">Attachments</h1>
+            <div class="file" style="margin-bottom:15px;">
+                <label class="file-label">
+                    <input class="file-input" type="file" name="file">
+                    <span class="file-cta">
+                        <span class="file-label">
+                            Choose a file to upload
+                        </span>
+                    </span>
+                </label>
+            </div>
+            <progress class="progress is-small" value="0" max="100" style="max-width:200px;display: none" id="att-progress-bar"></progress>
 
-        <table class="table is-bordered">
-            <thead>
-                <th>File Name</th>
-                <th>Size</th>
-                <th>type</th>
-                <th>Operation</th>
-            </thead>
-            <tbody>
-                {{range .}}
-                <tr v-for="p in posts">
-                    <td>{{.Name}}</td>
-                    <td><code>{{.Size}} bytes</code></td>
-                    <td><code>{{.Ext}}</code></td>
-                    <td>
-                        <button class="button is-small is-outlined copy-link-btn" data-clipboard-text="https://yetian.design/upload/data/{{.Name}}">Copy
-                            Link</button>
-                        <button class="button is-small is-danger is-outlined">Delete</button>
-                    </td>
-                </tr>
-                {{end}}
-            </tbody>
-        </table>
+            <table class="table is-bordered">
+                <thead>
+                    <th>File Name</th>
+                    <th>Size</th>
+                    <th>type</th>
+                    <th>Operation</th>
+                </thead>
+                <tbody>
+                    {{range .}}
+                    <tr v-for="p in posts">
+                        <td>{{.Name}}</td>
+                        <td><code>{{.Size}} bytes</code></td>
+                        <td><code>{{.Ext}}</code></td>
+                        <td>
+                            <button class="button is-small is-outlined copy-link-btn" data-clipboard-text="https://yetian.design/upload/data/{{.Name}}">Copy
+                                Link</button>
+                            <button class="button is-small is-danger is-outlined" onclick="deleteFile(this)" data-filename="{{.Name}}">Delete</button>
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
     </div>
+
     <script src="/upload/assets/js/app.js"></script>
 </body>
 

@@ -75,49 +75,71 @@ Vue.component("ghost-covers", {
                 self.posts = response.data.posts
             })
     }
+    //TODO: check token valid
 })
 
 new Vue({
     el: "#cover-app"
 })
 
-document.addEventListener("DOMContentLoaded", function() {
-    //listen attachment uploader to handle upload event
-    var attInput = document.querySelector("#attachment-app input")
-    attInput.onchange = function(event) {
-        var attachmentFile = event.target.files[0]
-        //TODO: check file
-        var sendData = new FormData()
-        sendData.append("attachment", attachmentFile)
-        //TODO: upload progress
-        var config = {
-            onUploadProgress: function(progressEvent) {
-                var percentCompleted = Math.round(
-                    (progressEvent.loaded * 100) / progressEvent.total
-                )
-                var bar = document.getElementById("att-progress-bar")
-                bar.style.display = "block"
-                bar.setAttribute("value", percentCompleted)
-            }
+//listen attachment uploader to handle upload event
+var attInput = document.querySelector("#attachment-app input")
+attInput.onchange = function(event) {
+    var attachmentFile = event.target.files[0]
+    //TODO: check file
+    var sendData = new FormData()
+    sendData.append("attachment", attachmentFile)
+    //upload progress
+    var config = {
+        onUploadProgress: function(progressEvent) {
+            var percentCompleted = Math.round(
+                (progressEvent.loaded * 100) / progressEvent.total
+            )
+            var bar = document.getElementById("att-progress-bar")
+            bar.style.display = "block"
+            bar.setAttribute("value", percentCompleted)
         }
+    }
+    axios
+        .post("/upload/api/upload-attachment", sendData, config)
+        .then(function(response) {
+            var bar = document.getElementById("att-progress-bar")
+            bar.style.display = "none"
+            if (response.data.status == "OK") alert("上传成功")
+            window.location.reload()
+        })
+        .catch(function(err) {
+            alert("上传失败：" + err.message)
+            console.error(err)
+        })
+}
+
+//delete attachment handler
+function deleteFile(target) {
+    var filename = target.dataset.filename
+    if (confirm("确认删除文件：" + filename)) {
         axios
-            .post("/upload/api/attachment", sendData, config)
+            .post("/upload/api/delete-attachment", {
+                filename: filename
+            })
             .then(function(response) {
-                if (response.data.status == "OK") window.location.reload()
-                var bar = document.getElementById("att-progress-bar")
-                bar.style.display = "none"
+                if (response.data.status == "OK") alert("删除成功")
+                window.location.reload()
             })
             .catch(function(err) {
-                alert("上传出错：" + err.message)
+                alert("删除失败：" + err.message)
                 console.error(err)
             })
+    } else {
+        return
     }
-    //copy link button handler
-    var cb = new ClipboardJS(".copy-link-btn")
-    cb.on("success", function(e) {
-        alert("已复制文件地址：" + e.text)
-    })
-    cb.on("error", function(e) {
-        alert("浏览器不支持复制操作")
-    })
+}
+
+//copy link button handler
+var cb = new ClipboardJS(".copy-link-btn")
+cb.on("success", function(e) {
+    alert("已复制文件地址：" + e.text)
+})
+cb.on("error", function(e) {
+    alert("浏览器不支持复制操作")
 })
