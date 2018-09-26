@@ -1,12 +1,13 @@
 const apiUrl = "https://yetian.design/ghost/api/v0.1"
 
 //get Ghost token in browser's localStorage
-var ls = JSON.parse(localStorage.getItem("ghost:session"))
+var ls = localStorage.getItem("ghost:session")
 //no token, redirect to Ghost Admin page
 if (!ls) {
+    localStorage.clear()
     window.location.href = "/ghost"
 }
-var ghostToken = ls.authenticated.access_token
+var ghostToken = JSON.parse(ls).authenticated.access_token
 
 //inject axios into Vue.prototype
 window.axios = axios
@@ -63,16 +64,15 @@ Vue.component("ghost-covers", {
     methods: {
         fetchData() {
             //get all posts
-            var self = this
             axios
-                .get(apiUrl + "/posts", {
+                .get(apiUrl + "/posts/", {
                     params: {
                         limit: 100,
                         fields: "title,slug,visibility"
                     }
                 })
-                .then(function(response) {
-                    self.posts = response.data.posts
+                .then(response => {
+                    this.posts = response.data.posts
                 })
         },
         selectCover: function(e, s) {
@@ -119,8 +119,22 @@ Vue.component("ghost-covers", {
     },
     beforeMount: function() {
         this.fetchData()
+    },
+    beforeCreate: function() {
+        //check token valid
+        axios
+            .get(apiUrl + "/users/1/")
+            .then(response => {
+                if (response.status != 200) {
+                    localStorage.clear()
+                    window.location.href = "/ghost"
+                }
+            })
+            .catch(error => {
+                localStorage.clear()
+                window.location.href = "/ghost"
+            })
     }
-    //TODO: check token valid
 })
 
 new Vue({
@@ -131,7 +145,6 @@ new Vue({
 var attInput = document.querySelector("#attachment-app input")
 attInput.onchange = function(event) {
     var attachmentFile = event.target.files[0]
-    //TODO: check file
     var sendData = new FormData()
     sendData.append("attachment", attachmentFile)
     //upload progress
