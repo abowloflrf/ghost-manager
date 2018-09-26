@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"html/template"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -62,7 +63,26 @@ func main() {
 
 	r.HandleFunc("/upload/api/attachment", func(w http.ResponseWriter, req *http.Request) {
 		if req.Method == http.MethodPost {
-			w.Write([]byte("POST: attachment api"))
+			//get file from request
+			file, header, err := req.FormFile("attachment")
+			if err != nil {
+				panic(err)
+			}
+			defer file.Close()
+
+			//TODO: check if there exsit file with same name
+			//save file to our path
+			f, err := os.OpenFile(uploadPath+"/"+header.Filename, os.O_WRONLY|os.O_CREATE, 0666)
+			if err != nil {
+				panic(err)
+			}
+			defer f.Close()
+			io.Copy(f, file)
+
+			//return json
+			w.Header().Set("Content-Type", "application/json")
+			io.WriteString(w, `{"status":"OK"}`)
+
 		} else if req.Method == http.MethodDelete {
 			w.Write([]byte("DELETE: attachment api"))
 		} else {
@@ -73,6 +93,7 @@ func main() {
 	})
 
 	r.PathPrefix("/upload/assets/").Handler(http.StripPrefix("/upload/assets/", http.FileServer(http.Dir("./assets"))))
+	r.PathPrefix("/upload/data/").Handler(http.StripPrefix("/upload/data/", http.FileServer(http.Dir(uploadPath))))
 
 	fmt.Println("Listen: http://127.0.0.1:8080")
 	log.Fatal(http.ListenAndServe(":8080", r))

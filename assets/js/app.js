@@ -85,6 +85,39 @@ document.addEventListener("DOMContentLoaded", function() {
     //listen attachment uploader to handle upload event
     var attInput = document.querySelector("#attachment-app input")
     attInput.onchange = function(event) {
-        console.log(event.target.files[0])
+        var attachmentFile = event.target.files[0]
+        //TODO: check file
+        var sendData = new FormData()
+        sendData.append("attachment", attachmentFile)
+        //TODO: upload progress
+        var config = {
+            onUploadProgress: function(progressEvent) {
+                var percentCompleted = Math.round(
+                    (progressEvent.loaded * 100) / progressEvent.total
+                )
+                var bar = document.getElementById("att-progress-bar")
+                bar.style.display = "block"
+                bar.setAttribute("value", percentCompleted)
+            }
+        }
+        axios
+            .post("/upload/api/attachment", sendData, config)
+            .then(function(response) {
+                if (response.data.status == "OK") window.location.reload()
+                var bar = document.getElementById("att-progress-bar")
+                bar.style.display = "none"
+            })
+            .catch(function(err) {
+                alert("上传出错：" + err.message)
+                console.error(err)
+            })
     }
+    //copy link button handler
+    var cb = new ClipboardJS(".copy-link-btn")
+    cb.on("success", function(e) {
+        alert("已复制文件地址：" + e.text)
+    })
+    cb.on("error", function(e) {
+        alert("浏览器不支持复制操作")
+    })
 })

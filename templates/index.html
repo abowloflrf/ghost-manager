@@ -7,7 +7,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/bulma/css/bulma.css">
     <script src="//cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <script src="//cdn.jsdelivr.net/npm/axios/dist/axios.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/clipboard/dist/clipboard.min.js"></script>
     <title>Ghost Covers & Attachments Managment</title>
 </head>
 
@@ -27,6 +28,7 @@
                 </span>
             </label>
         </div>
+        <progress class="progress is-small" value="0" max="100" style="max-width:200px;display: none" id="att-progress-bar"></progress>
 
         <table class="table is-bordered">
             <thead>
@@ -42,7 +44,8 @@
                     <td><code>{{.Size}} bytes</code></td>
                     <td><code>{{.Ext}}</code></td>
                     <td>
-                        <button class="button is-small is-outlined">Copy Link</button>
+                        <button class="button is-small is-outlined copy-link-btn" data-clipboard-text="https://yetian.design/upload/data/{{.Name}}">Copy
+                            Link</button>
                         <button class="button is-small is-danger is-outlined">Delete</button>
                     </td>
                 </tr>
